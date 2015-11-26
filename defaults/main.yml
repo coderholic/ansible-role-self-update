@@ -1,6 +1,6 @@
 ---
 # defaults file for self-update
-selfupdate_user: ubuntu
+selfupdate_user: "ubuntu"
 selfupdate_key_install_path: "/home/ubuntu/.ssh/self-update.pem"
 selfupdate_key_filename: "boot-update.id_rsa"
 

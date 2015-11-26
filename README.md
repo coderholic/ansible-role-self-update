@@ -4,9 +4,9 @@ self-update
 A simple package to setup target server to fire a deploy request to ansible command server.
 
 The full situation:
-- We do not build any package server (yum/debian package server) to maintain the target servers software upgrading. 
+- We do not build any package server (yum/debian package server) to maintain the target server software upgrading. 
 - We only use ansbile commands to upgrade target server and setup environment.
-- We must make sure target server with the latest package and currect environment when using AWS Auto Scaling.
+- We want to make sure target server with the latest package and currect environment when using AWS Auto Scaling.
 
 The Solution:
 - Let target server fire a deploy request to the deploy server at boot.
@@ -56,6 +56,14 @@ ansible-deploy/
 │       └── vars
 │           └── main.yml
 └── target-server.yml
+$ cat ansible-deploy/target-server.yml
+---
+- host: targetserver
+...
+$ cd ansible-deploy && ANSIBLE_HOST_KEY_CHECKING=false \
+HOST=targetserver \
+DATA=\"TARGET_SERVER_IP\" \
+ansible-playbook -i bin/echo.sh target-server.yml --private-key=$HOME/.ssh/ansible-deploy.pem
 ```
 
 At target server:
@@ -74,15 +82,23 @@ $ ssh -i $HOME/.ssh/self-update.pem self-update@DEPLOY_SERVER "date"
 Role Variables
 --------------
 
-# Default self-update script location
+Default self-update script location
+```
 selfupdate_script_location: "/usr/local/bin/selfupdate-service.sh"
+```
 
-# Append self-update script to boot script
+Append self-update script to boot script
+```
 selfupdate_script_boot_file: "/etc/rc.local"
+```
 
-# When true: append self-update script to boot script
+When true: append self-update script to boot script
+```
 selfupdate_script_install_boot: true
+```
 
+Target server public ip
+```
 # format: \"SERVER_IP1\",\"SERVER_IP2\"
 # It always cloud be a command: 
 #   $ curl -s ipinfo.io | jq '@text "\\\"\(.ip)\\\""' -r 
@@ -91,18 +107,25 @@ selfupdate_script_install_boot: true
 #   $ echo $selfupdate_self_public_ip
 #   \"SERVER_IP\"
 selfupdate_public_ip_or_get_public_ip_command: "\"SERVER_IP\""
+```
 
-# Deploy server location
+Deploy server location
+```
 selfupdate_ansible_command_server_location: "localhost"
-# Deploy server user & login info
+```
+Deploy server user & login info
+```
 selfupdate_ansible_command_server_login_user: "boot-update"
 selfupdate_ansible_command_server_loing_private_key: "{{selfupdate_key_install_path}}"
-# Deploy workspace & deploy info
+```
+Deploy workspace & deploy info
+```
 selfupdate_ansible_command_server_workspace: "\\$HOME/ansible-deploy"
 selfupdate_ansible_command_server_dynamic_host_executable_script_path: "bin/echo.sh"
 selfupdate_ansible_command_server_playbook_yml: "test.yml"
 selfupdate_ansible_command_server_host_in_playbook_yml: "localhost"
 selfupdate_ansible_command_server_private_key_for_playbook_usage: "\\$HOME/.ssh/ansible-deploy.pem"
+```
 
 Dependencies
 ------------
@@ -114,9 +137,38 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
+    - hosts: targetserver
       roles:
-         - { role: username.rolename, x: 42 }
+         - { role: chanyy.self-update,
+
+             selfupdate_user: "ubuntu",
+             selfupdate_key_install_path: "/home/ubuntu/.ssh/self-update.pem",
+             selfupdate_key_filename: "/path/boot-update.id_rsa",
+             selfupdate_script_location: "/usr/local/bin/selfupdate-service.sh",
+             selfupdate_script_boot_file: "/etc/rc.local",
+             selfupdate_script_install_boot: true,
+             selfupdate_ansible_command_server_playbook_yml: "target-server.yml", 
+             selfupdate_ansible_command_server_host_in_playbook_yml: "targetserver",
+             selfupdate_ansible_command_server_location: "DEPLOY_SERVER_IP",
+             selfupdate_ansible_command_server_workspace: "\\$HOME/ansible-deploy",
+             selfupdate_ansible_command_server_private_key_for_playbook_usage: "\\$HOME/.ssh/ansible-deploy.pem"
+           }
+
+After installation, the target server environment:
+```
+$ hostname
+TARGET_SERVER
+$ ls /usr/local/bin/selfupdate-service.sh
+$ cat /etc/rc.local
+# ...
+bash /usr/local/bin/selfupdate-service.sh;
+exit 0
+```
+
+Take a try to fire deploy request:
+```
+$ bash /usr/local/bin/selfupdate-service.sh
+```
 
 License
 -------
