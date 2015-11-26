@@ -1,0 +1,31 @@
+---
+# defaults file for self-update
+selfupdate_user: ubuntu
+selfupdate_key_install_path: "/home/ubuntu/.ssh/self-update.pem"
+selfupdate_key_filename: "boot-update.id_rsa"
+
+selfupdate_script_location: "/usr/local/bin/selfupdate-service.sh"
+selfupdate_script_boot_file: "/etc/rc.local"
+selfupdate_script_install_boot: true
+
+#
+# format: \"SERVER_IP1\",\"SERVER_IP2\"
+# tools:
+#   $ curl -s ipinfo.io | jq '.ip'
+#   $ curl -s ipinfo.io | jq '@text "\\\"\(.ip)\\\""' -r 
+#   \"SERVER_IP\"
+#
+#   $ export selfupdate_self_public_ip=\\\"`curl -s ipinfo.io | jq '@text "\(.ip)"' -r`\\\"
+#   $ echo $selfupdate_self_public_ip
+#   \"SERVER_IP\"
+#
+#selfupdate_public_ip_or_get_public_ip_command: "`curl -s ipinfo.io | jq {{ \"'\" }}@text \"\\\\\\\"\\(.ip)\\\\\\\"\"{{ \"'\" }} -r`"
+selfupdate_public_ip_or_get_public_ip_command: "\\\\\\\"`curl -s ipinfo.io | jq {{ \"'\" }}@text \"\\(.ip)\"{{ \"'\" }} -r`\\\\\\\""
+selfupdate_ansible_command_server_location: "localhost"
+selfupdate_ansible_command_server_login_user: "boot-update"
+selfupdate_ansible_command_server_loing_private_key: "{{selfupdate_key_install_path}}"
+selfupdate_ansible_command_server_workspace: "\\$HOME/ansible-deploy"
+selfupdate_ansible_command_server_dynamic_host_executable_script_path: "bin/echo.sh"
+selfupdate_ansible_command_server_playbook_yml: "test.yml"
+selfupdate_ansible_command_server_host_in_playbook_yml: "localhost"
+selfupdate_ansible_command_server_private_key_for_playbook_usage: "\\$HOME/.ssh/ansible-deploy.pem"

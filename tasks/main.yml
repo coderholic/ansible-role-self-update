@@ -1,0 +1,11 @@
+---
+# tasks file for self-update
+- name: Copy key
+  copy: src="{{selfupdate_key_filename}}" dest="{{selfupdate_key_install_path}}" owner="{{selfupdate_user}}" group="{{selfupdate_user}}" mode=0600
+
+- name: Copy selfupdate script
+  template: src=selfupdate.sh.j2 dest="{{selfupdate_script_location}}" mode=0755 owner=root
+
+- name: Auto run at boot
+  lineinfile: dest="{{selfupdate_script_boot_file}}" line="bash {{selfupdate_script_location}};" insertbefore="^exit.*"
+  when: selfupdate_script_install_boot
