@@ -82,6 +82,11 @@ $ ssh -i $HOME/.ssh/self-update.pem self-update@DEPLOY_SERVER "date"
 Role Variables
 --------------
 
+Deploy user (need sudo without password)
+```
+selfupdate_user: "ubuntu"
+```
+
 Default self-update script location
 ```
 selfupdate_script_location: "/usr/local/bin/selfupdate-service.sh"
@@ -138,12 +143,15 @@ Example Playbook
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
     - hosts: targetserver
+      remote_user: ubuntu
+      sudo: yes
+
       roles:
          - { role: chanyy.self-update,
 
              selfupdate_user: "ubuntu",
              selfupdate_key_install_path: "/home/ubuntu/.ssh/self-update.pem",
-             selfupdate_key_filename: "/path/boot-update.id_rsa",
+             selfupdate_key_filename: "/deploy-server-path/boot-update.id_rsa",
              selfupdate_script_location: "/usr/local/bin/selfupdate-service.sh",
              selfupdate_script_boot_file: "/etc/rc.local",
              selfupdate_script_install_boot: true,
