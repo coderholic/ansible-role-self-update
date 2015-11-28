@@ -15,10 +15,10 @@ The Solution:
 Requirements
 ------------
 
-At default setup, the target server is running on Ubuntu 14.04 with packages: jq, curl. Using curl & jq to get target server public ip: 
+At default setup, the target server is running on Ubuntu 14.04 with packages: curl. Using curl & jq to get target server public ip from http://ipinfo.io: 
 
 ```bash
-$ curl -s ipinfo.io | jq '.ip'
+$ curl -s ipinfo.io/ip
 ```
 
 At deploy server which running ansible commands, it shoud have an account which target server cloud do it to do ssh login.
@@ -106,9 +106,9 @@ Target server public ip
 ```
 # format: \"SERVER_IP1\",\"SERVER_IP2\"
 # It always cloud be a command: 
-#   $ curl -s ipinfo.io | jq '@text "\\\"\(.ip)\\\""' -r 
+#   $ curl -s ipinfo.io/ip
 #   \"SERVER_IP\"
-#   $ export selfupdate_self_public_ip=\\\"`curl -s ipinfo.io | jq '@text "\(.ip)"' -r`\\\"
+#   $ export selfupdate_self_public_ip=\\\"`curl -s ipinfo.io/ip`\\\"
 #   $ echo $selfupdate_self_public_ip
 #   \"SERVER_IP\"
 selfupdate_public_ip_or_get_public_ip_command: "\"SERVER_IP\""
